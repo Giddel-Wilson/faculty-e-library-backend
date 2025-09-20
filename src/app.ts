@@ -16,44 +16,73 @@ dotenv.config();
 // serverless function on Vercel.
 export async function createApp() {
   const app = express();
-
   // Apply CORS middleware first, before any routes
   app.use(cors());
 
-  await initializeDb();
-
-  const admin = new AdminJS(options);
-
-  if (process.env.NODE_ENV === 'production') {
-    await admin.initialize();
-  } else {
-    admin.watch();
-  }
-
-  const router = buildAuthenticatedRouter(
-    admin,
-    {
-      cookiePassword: process.env.COOKIE_SECRET,
-      cookieName: 'adminjs',
-      provider,
-    },
-    null,
-    {
-      secret: process.env.COOKIE_SECRET,
-      saveUninitialized: true,
-      resave: true,
-    }
-  );
-
-  // Setup Swagger documentation
-  setupSwagger(app);
-
-  app.use(admin.options.rootPath, router);
+  // Default JSON parsers and swagger are registered regardless of DB state.
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
-  app.use('/api/v1/', routes);
+  setupSwagger(app);
 
-  return app;
+  // Try to initialize DB and AdminJS. If any required env is missing or
+  // initialization fails (for example in a preview deploy without secrets),
+  // fall back to a minimal app that exposes a health endpoint so Vercel
+  // doesn't return 404 for requests.
+  try {
+    // If DATABASE_URL isn't present, skip DB init and return a minimal app.
+    if (!process.env.DATABASE_URL) {
+      console.warn('DATABASE_URL not set — skipping DB/AdminJS initialization');
+      // @ts-ignore: simple health handler — types are intentionally relaxed for serverless fallback
+      app.get('/', (_req, res) => {
+        return res.status(200).json({ ok: true, warning: 'DATABASE_URL not configured' });
+      });
+      // @ts-ignore: health endpoint
+      app.get('/health', (_req, res) => res.send('ok'));
+      return app;
+    }
+
+    await initializeDb();
+
+    const admin = new AdminJS(options);
+
+    if (process.env.NODE_ENV === 'production') {
+      await admin.initialize();
+    } else {
+      admin.watch();
+    }
+
+    const router = buildAuthenticatedRouter(
+      admin,
+      {
+        cookiePassword: process.env.COOKIE_SECRET || 'please-set-cookie-secret',
+        cookieName: 'adminjs',
+        provider,
+      },
+      null,
+      {
+        secret: process.env.COOKIE_SECRET || 'please-set-cookie-secret',
+        saveUninitialized: true,
+        resave: true,
+      }
+    );
+
+    app.use(admin.options.rootPath, router);
+    app.use('/api/v1/', routes);
+
+    return app;
+  } catch (err) {
+    // Log the error and return a minimal app so the serverless function responds
+    // instead of failing during cold start.
+    // eslint-disable-next-line no-console
+    console.error('App initialization failed:', err && (err.stack || err));
+    // @ts-ignore: fallback endpoints for failed initialization
+    app.get('/', (_req, res) => {
+      return res.status(500).json({ ok: false, error: 'initialization_failed' });
+    });
+    // @ts-ignore: health endpoint
+    app.get('/health', (_req, res) => res.send('error'));
+    return app;
+  }
 }
 
 // If this file is run directly (node dist/app.js) then start an HTTP server.

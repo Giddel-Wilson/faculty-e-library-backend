@@ -115,7 +115,8 @@ router.post('/verify-otp', async (req, res) => {
 
     // Create JWT token using the auth middleware
     const token = createToken({
-      id: user._id as string,
+  // @ts-ignore: user._id is an ObjectId at runtime; we use it as string for tokens
+  id: user._id as string,
       email: user.email,
     });
 
