@@ -1,0 +1,10 @@
+declare module 'adminjs';
+declare module '@adminjs/express';
+declare module '@adminjs/mongoose';
+declare module '@aws-sdk/client-s3';
+declare module '@aws-sdk/lib-storage';
+declare module 'cors';
+declare module 'mongoose';
+declare module 'jsonwebtoken';
+declare module 'nodemailer';
+declare module 'serverless-http';

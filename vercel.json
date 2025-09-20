@@ -1,7 +1,11 @@
 {
+  "version": 2,
   "builds": [
-    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
+    { "src": "src/api/index.ts", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/src/api/index.ts" }
   ],
   "installCommand": "npm ci",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run vercel-build"
 }
