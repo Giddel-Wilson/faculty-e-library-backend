@@ -11,9 +11,10 @@ import { setupSwagger } from './swagger.js';
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
-
-const start = async () => {
+// Export a function that creates and returns the Express app instance.
+// This lets us run the app both as a normal Node server (local) and as a
+// serverless function on Vercel.
+export async function createApp() {
   const app = express();
 
   // Apply CORS middleware first, before any routes
@@ -52,10 +53,17 @@ const start = async () => {
   app.use(express.urlencoded({ extended: false }));
   app.use('/api/v1/', routes);
 
-  app.listen(port, () => {
-    console.log(`AdminJS available at http://localhost:${port}${admin.options.rootPath}`);
-    console.log(`API documentation available at http://localhost:${port}/api-docs`);
-  });
-};
+  return app;
+}
 
-start();
+// If this file is run directly (node dist/app.js) then start an HTTP server.
+if (process.argv[1] && process.argv[1].endsWith('dist/app.js')) {
+  (async () => {
+    const port = process.env.PORT || 3000;
+    const app = await createApp();
+    app.listen(port, () => {
+      console.log(`AdminJS available at http://localhost:${port}`);
+      console.log(`API documentation available at http://localhost:${port}/api-docs`);
+    });
+  })();
+}

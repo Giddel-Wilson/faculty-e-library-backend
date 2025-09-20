@@ -6,7 +6,7 @@ interface IOTP extends Document {
   expiresAt: Date;
 }
 
-const otpSchema = new Schema<IOTP>({
+const otpSchema = new Schema({
   email: { type: String, required: true },
   otp: { type: String, required: true },
   expiresAt: { type: Date, default: Date.now, expires: 600 },

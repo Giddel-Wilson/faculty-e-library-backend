@@ -11,7 +11,7 @@ export interface IMaterial extends Document {
   updatedAt: Date;
 }
 
-const MaterialSchema = new mongoose.Schema<IMaterial>(
+const MaterialSchema = new mongoose.Schema(
   {
     level: {
       type: String,
@@ -43,4 +43,4 @@ const MaterialSchema = new mongoose.Schema<IMaterial>(
   }
 );
 
-export default mongoose.model<IMaterial>('Material', MaterialSchema);
+export default mongoose.model('Material', MaterialSchema);
