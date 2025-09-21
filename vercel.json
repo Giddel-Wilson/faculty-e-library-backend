@@ -6,6 +6,6 @@
   "routes": [
     { "src": "/(.*)", "dest": "/src/api/index.ts" }
   ],
-  "installCommand": "npm ci",
+  "installCommand": "npm i --include=optional",
   "buildCommand": "npm run vercel-build"
 }
