@@ -12,6 +12,8 @@
     "dev": "tsx watch ./src/app.ts"
   },
   "dependencies": {
+    "@rollup/rollup-linux-x64-gnu": "file:rollup-shims/rollup-linux-x64-gnu",
+    "@rollup/wasm-node": "^3.0.0",
     "@adminjs/express": "^6.1.0",
     "@adminjs/mongoose": "^4.1.0",
     "@aws-sdk/client-s3": "^3.758.0",
