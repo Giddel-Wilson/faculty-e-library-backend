@@ -41,7 +41,27 @@ export async function createApp() {
       return app;
     }
 
+
     await initializeDb();
+
+    // Short-term mitigation: in serverless environments or when explicitly
+    // requested via SKIP_ADMIN, skip AdminJS initialization so the function
+    // doesn't attempt runtime bundling (which triggers rollup native bindings).
+    // Set SKIP_ADMIN=true in Vercel Environment Variables to enable this, or
+    // the code will automatically skip when VERCEL is present.
+    const skipAdmin = (process.env.SKIP_ADMIN === 'true') ||
+      (typeof process.env.VERCEL !== 'undefined');
+
+    if (skipAdmin) {
+      console.warn('Skipping AdminJS initialization (SKIP_ADMIN or VERCEL detected)');
+      // Mount API routes and health endpoints so the function responds.
+      app.use('/api/v1/', routes);
+      // @ts-ignore
+      app.get('/', (_req, res) => res.status(200).json({ ok: true, note: 'Admin disabled in serverless' }));
+      // @ts-ignore
+      app.get('/health', (_req, res) => res.send('ok'));
+      return app;
+    }
 
     const admin = new AdminJS(options);
 
