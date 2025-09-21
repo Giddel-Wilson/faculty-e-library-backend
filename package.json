@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+  "postinstall": "node ./scripts/install-rollup-optional.cjs",
     "vercel-build": "npm run build",
     "lint": "eslint \"src\"",
     "start": "dotenv -c '.env' -- node dist/app",
