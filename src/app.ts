@@ -1,6 +1,4 @@
 import express from 'express';
-import AdminJS from 'adminjs';
-import { buildAuthenticatedRouter } from '@adminjs/express';
 import routes from './routes/index.js';
 import provider from './admin/auth-provider.js';
 import options from './admin/options.js';
@@ -63,12 +61,24 @@ export async function createApp() {
       return app;
     }
 
-    const admin = new AdminJS(options);
+    // Dynamically import AdminJS-related modules to avoid pulling in
+    // rollup native bindings during module evaluation in serverless builds.
+    // This prevents the "Cannot find module @rollup/rollup-..." error at startup.
+    // We use any for types to avoid TypeScript compile issues in this runtime file.
+    // eslint-disable-next-line global-require
+    const AdminJSModule: any = (await import('adminjs'))?.default || (await import('adminjs'));
+    const adminjsExpress: any = await import('@adminjs/express');
+
+    const AdminJS = AdminJSModule;
+    const { buildAuthenticatedRouter } = adminjsExpress;
+
+    const admin = new AdminJS(options as any);
 
     if (process.env.NODE_ENV === 'production') {
       await admin.initialize();
     } else {
-      admin.watch();
+      // In development we want AdminJS to watch files for changes
+      if (typeof admin.watch === 'function') admin.watch();
     }
 
     const router = buildAuthenticatedRouter(

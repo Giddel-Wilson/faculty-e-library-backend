@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-  "postinstall": "node ./scripts/install-rollup-optional.cjs",
+  "postinstall": "node -e \"if(process.env.INSTALL_ROLLUP_OPTIONAL==='true'){require('./scripts/install-rollup-optional.cjs')} else {console.log('Skipping install-rollup-optional (INSTALL_ROLLUP_OPTIONAL!=true)')}\"",
     "vercel-build": "npm run build",
     "lint": "eslint \"src\"",
     "start": "dotenv -c '.env' -- node dist/app",
@@ -51,6 +51,11 @@
     "tslib": "^2.5.0",
     "tsx": "^4.19.3",
     "typescript": "^5.0.4"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "*",
+    "@rollup/rollup-linux-x64-musl": "*",
+    "@rollup/rollup-linux-x64": "*"
   },
   "name": "faculty-of-science-material-upload-platform"
 }
