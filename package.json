@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-  "postinstall": "node -e \"if(process.env.INSTALL_ROLLUP_OPTIONAL==='true'){require('./scripts/install-rollup-optional.cjs')} else {console.log('Skipping install-rollup-optional (INSTALL_ROLLUP_OPTIONAL!=true)')}\"",
+    "postinstall": "node -e \"if(process.env.INSTALL_ROLLUP_OPTIONAL==='true'){require('./scripts/install-rollup-optional.cjs')} else {console.log('Skipping install-rollup-optional (INSTALL_ROLLUP_OPTIONAL!=true)')}\"",
     "vercel-build": "npm run build",
     "lint": "eslint \"src\"",
     "start": "dotenv -c '.env' -- node dist/app",
@@ -27,9 +27,9 @@
     "mongoose": "^8.12.1",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",
+    "serverless-http": "^3.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0",
-    "serverless-http": "^3.0.0"
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
@@ -53,9 +53,9 @@
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*",
-    "@rollup/rollup-linux-x64-musl": "*",
-    "@rollup/rollup-linux-x64": "*"
+    "@rollup/rollup-linux-x64": "*",
+    "@rollup/rollup-linux-x64-gnu": "npm:null@*",
+    "@rollup/rollup-linux-x64-musl": "*"
   },
   "name": "faculty-of-science-material-upload-platform"
 }
